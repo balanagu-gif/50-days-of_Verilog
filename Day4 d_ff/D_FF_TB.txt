@@ -1,0 +1,37 @@
+module tb_d_ff;
+
+    reg clk;
+    reg rst;
+    reg d;
+    wire q;
+
+    d_ff dut (.clk(clk), .rst(rst), .d(d), .q(q));
+
+    // clock generation
+    initial begin
+        clk = 0;
+        forever #5 clk = ~clk;   // 10 time unit clock period
+    end
+
+    initial begin
+        // initial values
+        rst = 1;
+        d   = 0;
+
+        // apply reset
+        #10 rst = 0;
+
+        // apply some values to 'd'
+        #10 d = 1;
+        #10 d = 0;
+        #10 d = 1;
+        
+
+        #20 $finish;
+    end
+
+    initial begin
+        $monitor("time=%0t  rst=%b  d=%b  q=%b", $time, rst, d, q);
+    end
+
+endmodule
