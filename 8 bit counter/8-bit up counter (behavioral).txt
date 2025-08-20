@@ -1,0 +1,16 @@
+// 8-bit up counter (behavioral)
+module counter_8bit (
+    input  logic clk,
+    input  logic rst,           // active-high reset
+    output logic [7:0] count
+);
+
+    // Initialize count to zero
+    always @(posedge clk or posedge rst) begin
+        if (rst)
+            count <= 8'd0;
+        else
+            count <= count + 8'd1;
+    end
+
+endmodule

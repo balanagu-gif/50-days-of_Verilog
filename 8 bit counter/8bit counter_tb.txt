@@ -1,0 +1,35 @@
+module tb_counter_8bit;
+
+  logic clk;
+  logic rst;
+  logic [7:0] count;
+
+  counter_8bit uut (
+    .clk(clk),
+    .rst(rst),
+    .count(count)
+  );
+
+  // Generate clock
+  always #5 clk = ~clk;
+
+  // Display the counter value on every positive edge of the clock
+  always @(posedge clk) begin
+    $display("time=%0t  rst=%0b  count=%0d", $time, rst, count);
+  end
+
+  initial begin
+    // initial values
+    clk = 0;
+    rst = 1;
+
+    // hold reset for some cycles
+    #10 rst = 0;
+
+    // run the counter
+    #100;
+
+    $finish;
+  end
+
+endmodule
