@@ -1,0 +1,18 @@
+// 8-bit Register with synchronous load and reset
+module reg8 (
+    input clk,
+    input rst,         // active-high synchronous reset
+    input load,        // load enable
+    input [7:0] d,     // data input
+    output reg [7:0] q // data output
+);
+
+    always @(posedge clk) begin
+        if (rst)
+            q <= 8'b0;      // reset clears register
+        else if (load)
+            q <= d;         // load data when enabled
+        else
+            q <= q;         // hold value (optional, inferred automatically)
+    end
+endmodule
