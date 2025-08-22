@@ -1,0 +1,46 @@
+`timescale 1ns/1ps
+
+module tb_shift_register;
+    reg clk, rst, shift_en, d_in;
+    wire [3:0] q;
+
+    // Instantiate DUT
+    shift_register uut (
+        .clk(clk),
+        .rst(rst),
+        .shift_en(shift_en),
+        .d_in(d_in),
+        .q(q)
+    );
+
+    // Clock generation
+    always #5 clk = ~clk;  
+    initial begin
+        
+        clk = 0;
+        rst = 1;
+        shift_en = 0;
+        d_in = 0;
+
+        // Reset active
+        #10;
+        rst = 0;
+
+        // Shift some bits
+        shift_en = 1;
+        d_in = 1; #10;   
+        d_in = 0; #10;   
+        d_in = 1; #10;   
+        d_in = 1; #10;   
+
+        // Stop shifting
+        shift_en = 0;
+        #20;
+
+        
+        rst = 1; #10;
+        rst = 0; #10;
+
+        $stop;
+    end
+endmodule
