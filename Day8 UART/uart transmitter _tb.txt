@@ -1,0 +1,50 @@
+`timescale 1us/1ns
+
+module tb_uart_tx;
+
+    logic clk;
+    logic rst;
+    logic tx_start;
+    logic [7:0] tx_data;
+    wire tx;
+    wire tx_busy;
+
+    // instantiate DUT
+    uart_tx #(.CLK_FREQ(1000000), .BAUD_RATE(9600)) dut (
+        .clk(clk),
+        .rst(rst),
+        .tx_start(tx_start),
+        .tx_data(tx_data),
+        .tx(tx),
+        .tx_busy(tx_busy)
+    );
+
+    // clock generation: 1 MHz
+    always #0.5 clk = ~clk;
+
+    initial begin
+        $dumpfile("uart_tx.vcd");
+        $dumpvars(0, tb_uart_tx);
+
+        clk = 0;
+        rst = 1;
+        tx_start = 0;
+        tx_data = 8'h00;
+
+        #5 rst = 0;
+
+        // Send one byte
+        @(posedge clk);
+        tx_data = 8'h55;     // pattern 01010101
+        tx_start = 1;
+        @(posedge clk);
+        tx_start = 0;
+
+        // Wait until transmission completes
+        wait(!tx_busy);
+
+        #100;
+        $finish;
+    end
+
+endmodule
