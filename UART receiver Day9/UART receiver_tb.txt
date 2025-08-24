@@ -1,0 +1,54 @@
+`timescale 1us/1ns
+
+module tb_uart_rx;
+    reg clk, rst, rx;
+    wire [7:0] data;
+    wire ready;
+
+    uart_rx uut (
+        .clk(clk),
+        .rst(rst),
+        .rx(rx),
+        .data(data),
+        .ready(ready)
+    );
+
+    // Clock generator (baud clock, 1 MHz = 1 us period)
+    initial clk = 0;
+    always #0.5 clk = ~clk; // 1 MHz
+
+    // Task to send one UART frame (8N1)
+    task send_byte(input [7:0] b);
+        integer i;
+        begin
+            // Start bit
+            rx = 0; #(1); 
+
+            // Send 8 data bits (LSB first)
+            for (i = 0; i < 8; i = i + 1) begin
+                rx = b[i];
+                #(1);
+            end
+
+            // Stop bit
+            rx = 1; #(1);
+        end
+    endtask
+
+    initial begin
+        // Init
+        rst = 1; rx = 1; // idle line is high
+        #5 rst = 0;
+
+        // Send test byte
+        #10 send_byte(8'hA5);  // 10100101
+
+        // Wait and observe
+        #20;
+
+        if (ready)
+            $display("Received Data = %h", data);
+
+        $finish;
+    end
+endmodule

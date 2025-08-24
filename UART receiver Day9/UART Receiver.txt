@@ -1,0 +1,44 @@
+// UART Receiver (8N1)
+module uart_rx (
+    input  wire clk,        // baud clock
+    input  wire rst,        // synchronous reset
+    input  wire rx,         // serial input line
+    output reg  [7:0] data, // received byte
+    output reg  ready       // high when a byte is received
+);
+
+    reg [3:0] bit_cnt;     // counts number of bits received
+    reg [9:0] shift_reg;   // shift register (1 start + 8 data + 1 stop)
+    reg       busy;        // receiving flag
+
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            bit_cnt   <= 0;
+            shift_reg <= 0;
+            data      <= 0;
+            ready     <= 0;
+            busy      <= 0;
+        end else begin
+            ready <= 0; // default
+
+            if (!busy) begin
+                // Wait for start bit
+                if (rx == 0) begin
+                    busy      <= 1;
+                    bit_cnt   <= 0;
+                    shift_reg <= 0;
+                end
+            end else begin
+                // Shift in bits
+                shift_reg <= {rx, shift_reg[9:1]};
+                bit_cnt   <= bit_cnt + 1;
+
+                if (bit_cnt == 9) begin
+                    busy  <= 0;
+                    data  <= shift_reg[8:1]; // 8 data bits
+                    ready <= 1;              // indicate data is valid
+                end
+            end
+        end
+    end
+endmodule
