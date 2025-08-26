@@ -1,0 +1,34 @@
+`timescale 1ns/1ps
+module tb_fsm();
+
+    reg clk, reset, in;
+    wire [1:0] state;
+
+        simple_fsm uut (
+        .clk(clk),
+        .reset(reset),
+        .in(in),
+        .state(state)
+    );
+
+    
+    always #5 clk = ~clk;  // 10ns period
+
+    initial begin
+        
+        $monitor("Time=%0t | reset=%b | in=%b | state=%b", $time, reset, in, state);
+
+        
+        clk = 0; reset = 1; in = 0;
+        #10 reset = 0;   // Release reset
+
+        
+        #10 in = 1;  // Move to S1
+        #10 in = 1;  // Move to S2
+        #10 in = 0;  // Move to S1
+        #10 in = 0;  // Move to IDLE
+        #10 in = 1;  // Move to S1
+        #20 $finish;
+    end
+
+endmodule
