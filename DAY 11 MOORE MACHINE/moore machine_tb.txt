@@ -1,0 +1,38 @@
+module tb_traffic_light;
+
+    reg clk, reset;
+    wire red, yellow, green;
+
+    // Instantiate DUT
+    traffic_light_moore uut (
+        .clk(clk),
+        .reset(reset),
+        .red(red),
+        .yellow(yellow),
+        .green(green)
+    );
+
+    // Clock generation
+    always #5 clk = ~clk; // 10 time units period
+
+    initial begin
+        $dumpfile("traffic_light.vcd");
+        $dumpvars(0, tb_traffic_light);
+
+        // Initialize
+        clk = 0;
+        reset = 1;
+        #10 reset = 0;
+
+        // Run simulation
+        #100;
+        $finish;
+    end
+
+    // Monitor outputs
+    initial begin
+        $monitor("Time=%0t | RED=%b, GREEN=%b, YELLOW=%b",
+                 $time, red, green, yellow);
+    end
+
+endmodule
